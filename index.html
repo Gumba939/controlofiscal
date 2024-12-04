@@ -1,0 +1,877 @@
+<html><head><base href="https://graca.pt" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Atividades Fiscais - Graça Sobre Graça</title>
+
+<style>
+:root {
+  --primary: #6a1b9a;
+  --secondary: #9e9e9e;
+  --success: #28a745;
+  --danger: #dc3545;
+  --warning: #ffc107;
+  --light: #f8f9fa;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  min-height: 100vh;
+  background: var(--light);
+}
+
+.sidebar {
+  background: linear-gradient(180deg, var(--primary), #4a148c);
+  color: white;
+  padding: 1.5rem;
+  position: fixed;
+  height: 100vh;
+  width: 250px;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.15);
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.logo-container {
+  padding: 1.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid rgba(255,255,255,0.15);
+}
+
+.logo {
+  width: 150px;
+  height: auto;
+  filter: brightness(1.2);
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  padding: 1.2rem;
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  margin-bottom: 0.8rem;
+  transition: all 0.3s ease;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(255,255,255,0), rgba(255,255,255,0.1), rgba(255,255,255,0));
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.nav-link:hover::before {
+  transform: translateX(100%);
+}
+
+.nav-link:hover {
+  background: rgba(255,255,255,0.15);
+  transform: translateX(8px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.nav-link.active {
+  background: rgba(255,255,255,0.2);
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+main {
+  margin-left: 250px;
+  padding: 2.5rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dashboard {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.dashboard h1 {
+  color: var(--primary);
+  margin-bottom: 2.5rem;
+  font-size: 2rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.dashboard h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+.filters {
+  display: flex;
+  gap: 1.2rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  min-width: 220px;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+  cursor: pointer;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.filter-select:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.filter-select:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(106,27,154,0.2);
+}
+
+.filter-select#companyFilter {
+  border-color: var(--primary);
+  font-weight: 500;
+}
+
+.filter-select#companyFilter:hover {
+  background: rgba(106,27,154,0.05);
+}
+
+.fiscal-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.fiscal-table th,
+.fiscal-table td {
+  padding: 1.2rem;
+  border: 1px solid #e9ecef;
+}
+
+.fiscal-table th {
+  background: linear-gradient(135deg, var(--primary), #4a148c);
+  color: white;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
+.fiscal-table tr {
+  transition: all 0.3s ease;
+}
+
+.fiscal-table tr:hover {
+  background: #f8f9fa;
+  transform: scale(1.01);
+}
+
+.status {
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+  min-width: 120px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.status-pending {
+  background: linear-gradient(135deg, #ffe5e5, #ffcdd2);
+  color: var(--danger);
+}
+
+.status-success {
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  color: var(--success);
+}
+
+.status:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.reports-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.report-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.report-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.report-card i {
+  font-size: 2.5rem;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.report-card h3 {
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.report-card p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.report-btn {
+  background: linear-gradient(135deg, var(--primary), #4a148c);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.report-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(106,27,154,0.3);
+}
+
+.settings-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.settings-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.settings-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.settings-card i {
+  font-size: 2.5rem;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+}
+
+.settings-card h3 {
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #333;
+}
+
+.settings-input {
+  padding: 0.8rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.settings-input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(106,27,154,0.2);
+}
+
+.settings-btn {
+  background: linear-gradient(135deg, var(--primary), #4a148c);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+  margin-top: 1rem;
+}
+
+.settings-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(106,27,154,0.3);
+}
+
+.settings-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.toggle-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Switch Toggle Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: var(--primary);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+</style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo-container">
+      <img src="/logo.jpg" alt="Graça Sobre Graça Logo" class="logo">
+    </div>
+    <nav>
+      <a href="https://graca.pt/dashboard" class="nav-link active">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+      <a href="https://graca.pt/reports" class="nav-link">
+        <i class="fas fa-chart-line"></i> Relatórios
+      </a>
+      <a href="https://graca.pt/settings" class="nav-link">
+        <i class="fas fa-cog"></i> Configurações
+      </a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="dashboard">
+      <h1>Dashboard Fiscal</h1>
+      <div class="filters">
+        <select class="filter-select" id="activityFilter">
+          <option value="all">Todas as Atividades</option>
+          <option value="saft">Ficheiro SAFT-T</option>
+          <option value="iva">Declaração IVA</option>
+          <option value="irt">IRT</option>
+          <option value="is">Imposto de Selo</option>
+        </select>
+        <select class="filter-select" id="yearFilter">
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+        </select>
+        <select class="filter-select" id="companyFilter">
+          <option value="all">Todas as Empresas</option>
+          <option value="majus">Majus</option>
+          <option value="baia-cabo-ledo">Baia Cabo Ledo</option>
+          <option value="vistamar">Vistamar</option>
+          <option value="unica-farma">Unica-Farma</option>
+          <option value="its-us">It's US</option>
+          <option value="afrovisao">Afrovisão</option>
+          <option value="lemundo">Lemundo</option>
+          <option value="ebbv">EBBV</option>
+          <option value="clean-system">Clean System</option>
+          <option value="atlas">Atlas</option>
+          <option value="clinica-santo-antonio">Clinica Santo António</option>
+          <option value="fairs">Fairs</option>
+        </select>
+      </div>
+
+      <table class="fiscal-table">
+        <thead>
+          <tr>
+            <th>Atividade</th>
+            <th>Jan</th>
+            <th>Fev</th>
+            <th>Mar</th>
+            <th>Abr</th>
+            <th>Mai</th>
+            <th>Jun</th>
+            <th>Jul</th>
+            <th>Ago</th>
+            <th>Set</th>
+            <th>Out</th>
+            <th>Nov</th>
+            <th>Dez</th>
+          </tr>
+        </thead>
+        <tbody id="fiscalTableBody">
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const activities = [
+    {
+      name: 'Ficheiro SAFT-T',
+      status: {
+        jan: 'success', fev: 'success', mar: 'success',
+        abr: 'pending', mai: 'pending', jun: 'pending',
+        jul: 'pending', ago: 'pending', set: 'pending',
+        out: 'pending', nov: 'pending', dez: 'pending'
+      }
+    },
+    {
+      name: 'Submissão da declaração do IVA',
+      status: {
+        jan: 'success', fev: 'success', mar: 'pending',
+        abr: 'pending', mai: 'pending', jun: 'pending',
+        jul: 'pending', ago: 'pending', set: 'pending',
+        out: 'pending', nov: 'pending', dez: 'pending'
+      }
+    },
+    {
+      name: 'Liquidação e Pagamento do IVA',
+      status: {
+        jan: 'success', fev: 'success', mar: 'pending',
+        abr: 'pending', mai: 'pending', jun: 'pending',
+        jul: 'pending', ago: 'pending', set: 'pending',
+        out: 'pending', nov: 'pending', dez: 'pending'
+      }
+    },
+    {
+      name: 'Mapa de Remuneração do IRT',
+      status: {
+        jan: 'success', fev: 'success', mar: 'success',
+        abr: 'pending', mai: 'pending', jun: 'pending',
+        jul: 'pending', ago: 'pending', set: 'pending',
+        out: 'pending', nov: 'pending', dez: 'pending'
+      }
+    },
+    {
+      name: 'Pagamento de IRT',
+      status: {
+        jan: 'success', fev: 'success', mar: 'success',
+        abr: 'pending', mai: 'pending', jun: 'pending',
+        jul: 'pending', ago: 'pending', set: 'pending',
+        out: 'pending', nov: 'pending', dez: 'pending'
+      }
+    },
+    {
+      name: 'Pagamento de I.S',
+      status: {
+        jan: 'success', fev: 'success', mar: 'pending',
+        abr: 'pending', mai: 'pending', jun: 'pending',
+        jul: 'pending', ago: 'pending', set: 'pending',
+        out: 'pending', nov: 'pending', dez: 'pending'
+      }
+    },
+    {
+      name: 'Entrega dos Documentos',
+      status: {
+        jan: 'success', fev: 'success', mar: 'success',
+        abr: 'pending', mai: 'pending', jun: 'pending',
+        jul: 'pending', ago: 'pending', set: 'pending',
+        out: 'pending', nov: 'pending', dez: 'pending'
+      }
+    },
+    {
+      name: 'Emissão de Relatório',
+      status: {
+        jan: 'success', fev: 'success', mar: 'pending',
+        abr: 'pending', mai: 'pending', jun: 'pending',
+        jul: 'pending', ago: 'pending', set: 'pending',
+        out: 'pending', nov: 'pending', dez: 'pending'
+      }
+    },
+    {
+      name: 'Submissão Dec. Anuais Modelo 1',
+      status: {
+        jan: 'success', fev: 'pending', mar: 'pending',
+        abr: 'pending', mai: 'pending', jun: 'pending',
+        jul: 'pending', ago: 'pending', set: 'pending',
+        out: 'pending', nov: 'pending', dez: 'pending'
+      }
+    }
+  ];
+
+  function updateTable() {
+    const tableBody = document.getElementById('fiscalTableBody');
+    const activityFilter = document.getElementById('activityFilter').value;
+    const companyFilter = document.getElementById('companyFilter').value;
+    
+    tableBody.innerHTML = '';
+
+    let filteredActivities = activities;
+    if (activityFilter !== 'all') {
+      filteredActivities = activities.filter(activity => 
+        activity.name.toLowerCase().includes(activityFilter.toLowerCase())
+      );
+    }
+
+    // Add company name to the table header
+    const companyName = document.getElementById('companyFilter').options[document.getElementById('companyFilter').selectedIndex].text;
+    const dashboardTitle = document.querySelector('.dashboard h1');
+    dashboardTitle.textContent = companyFilter === 'all' ? 
+      'Dashboard Fiscal' : 
+      `Dashboard Fiscal - ${companyName}`;
+
+    // Update the table with the filtered data
+    filteredActivities.forEach(activity => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="font-weight: 500;">${activity.name}</td>
+        ${Object.values(activity.status).map(status => `
+          <td>
+            <span class="status status-${status}" onclick="toggleStatus(this)">
+              ${status === 'success' ? 'Concluído' : 'Pendente'}
+            </span>
+          </td>
+        `).join('')}
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+  window.toggleStatus = function(element) {
+    const currentStatus = element.classList.contains('status-success') ? 'success' : 'pending';
+    const newStatus = currentStatus === 'success' ? 'pending' : 'success';
+    
+    Swal.fire({
+      title: 'Alterar Status?',
+      text: `Deseja alterar o status para ${newStatus === 'success' ? 'Concluído' : 'Pendente'}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#dc3545',
+      confirmButtonText: 'Sim',
+      cancelButtonText: 'Não'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        element.classList.remove(`status-${currentStatus}`);
+        element.classList.add(`status-${newStatus}`);
+        element.textContent = newStatus === 'success' ? 'Concluído' : 'Pendente';
+        
+        Swal.fire(
+          'Atualizado!',
+          'O status foi atualizado com sucesso.',
+          'success'
+        );
+      }
+    });
+  };
+
+  window.downloadPDF = function(type, companyName) {
+    const content = `
+      Graça Sobre Graça
+      Empresa: ${companyName}
+      Relatório ${type === 'monthly' ? 'Mensal' : type === 'quarterly' ? 'Trimestral' : 'Anual'}
+      Data: ${new Date().toLocaleDateString()}
+      
+      Resumo das Atividades:
+      - SAFT-T
+      - IVA
+      - IRT
+      - Imposto de Selo
+      - Documentação
+    `;
+
+    const blob = new Blob([content], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio_${companyName.toLowerCase().replace(/\s+/g, '_')}_${type}_${new Date().toISOString().split('T')[0]}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  };
+
+  window.generateReport = function(type) {
+    const companyName = document.getElementById('companyFilter').options[document.getElementById('companyFilter').selectedIndex].text;
+    
+    Swal.fire({
+      title: 'Gerando Relatório',
+      text: `Gerando relatório para ${companyName}...`,
+      timer: 2000,
+      timerProgressBar: true,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    }).then(() => {
+      Swal.fire({
+        title: 'Relatório Gerado!',
+        text: `O relatório ${type === 'monthly' ? 'mensal' : type === 'quarterly' ? 'trimestral' : 'anual'} para ${companyName} foi gerado com sucesso.`,
+        icon: 'success',
+        showCancelButton: true,
+        confirmButtonText: 'Download PDF',
+        cancelButtonText: 'Fechar',
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          downloadPDF(type, companyName);
+        }
+      });
+    });
+  };
+
+  updateTable();
+
+  document.getElementById('activityFilter').addEventListener('change', updateTable);
+  document.getElementById('companyFilter').addEventListener('change', updateTable);
+  document.getElementById('yearFilter').addEventListener('change', updateTable);
+  
+  const navLinks = document.querySelectorAll('.nav-link');
+  const dashboard = document.querySelector('.dashboard');
+  
+  navLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      navLinks.forEach(l => l.classList.remove('active'));
+      this.classList.add('active');
+      
+      const path = this.getAttribute('href').split('/').pop();
+      
+      if (path === 'reports') {
+        dashboard.innerHTML = `
+          <h1>Relatórios</h1>
+          <div class="reports-container">
+            <div class="report-card">
+              <i class="fas fa-file-alt"></i>
+              <h3>Relatório Mensal</h3>
+              <p>Resumo das atividades fiscais do mês</p>
+              <button class="report-btn" onclick="generateReport('monthly')">Gerar Relatório</button>
+            </div>
+            <div class="report-card">
+              <i class="fas fa-calendar-alt"></i>
+              <h3>Relatório Trimestral</h3>
+              <p>Análise fiscal do trimestre</p>
+              <button class="report-btn" onclick="generateReport('quarterly')">Gerar Relatório</button>
+            </div>
+            <div class="report-card">
+              <i class="fas fa-chart-bar"></i>
+              <h3>Relatório Anual</h3>
+              <p>Visão geral do ano fiscal</p>
+              <button class="report-btn" onclick="generateReport('annual')">Gerar Relatório</button>
+            </div>
+          </div>
+        `;
+      } else if (path === 'settings') {
+        dashboard.innerHTML = `
+          <h1>Configurações</h1>
+          <div class="settings-container">
+            <div class="settings-card">
+              <i class="fas fa-user-circle"></i>
+              <h3>Perfil da Empresa</h3>
+              <form class="settings-form" id="profileForm">
+                <div class="form-group">
+                  <label>Nome da Empresa</label>
+                  <input type="text" class="settings-input" placeholder="Nome da Empresa">
+                </div>
+                <div class="form-group">
+                  <label>NIF</label>
+                  <input type="text" class="settings-input" placeholder="Número de Identificação Fiscal">
+                </div>
+                <div class="form-group">
+                  <label>Email</label>
+                  <input type="email" class="settings-input" placeholder="Email">
+                </div>
+                <div class="form-group">
+                  <label>Telefone</label>
+                  <input type="tel" class="settings-input" placeholder="Telefone">
+                </div>
+                <button type="submit" class="settings-btn">Salvar Alterações</button>
+              </form>
+            </div>
+            
+            <div class="settings-card">
+              <i class="fas fa-bell"></i>
+              <h3>Notificações</h3>
+              <div class="settings-toggles">
+                <div class="toggle-group">
+                  <label>Notificações por Email</label>
+                  <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider round"></span>
+                  </label>
+                </div>
+                <div class="toggle-group">
+                  <label>Alertas de Vencimento</label>
+                  <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider round"></span>
+                  </label>
+                </div>
+                <div class="toggle-group">
+                  <label>Relatórios Automáticos</label>
+                  <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="settings-card">
+              <i class="fas fa-shield-alt"></i>
+              <h3>Segurança</h3>
+              <form class="settings-form" id="securityForm">
+                <div class="form-group">
+                  <label>Senha Atual</label>
+                  <input type="password" class="settings-input" placeholder="Digite a senha atual">
+                </div>
+                <div class="form-group">
+                  <label>Nova Senha</label>
+                  <input type="password" class="settings-input" placeholder="Digite a nova senha">
+                </div>
+                <div class="form-group">
+                  <label>Confirmar Senha</label>
+                  <input type="password" class="settings-input" placeholder="Confirme a nova senha">
+                </div>
+                <button type="submit" class="settings-btn">Atualizar Senha</button>
+              </form>
+            </div>
+          </div>
+        `;
+
+        // Add form submission handlers
+        document.getElementById('profileForm')?.addEventListener('submit', function(e) {
+          e.preventDefault();
+          Swal.fire({
+            title: 'Sucesso!',
+            text: 'Perfil atualizado com sucesso',
+            icon: 'success',
+            confirmButtonColor: '#6a1b9a'
+          });
+        });
+
+        document.getElementById('securityForm')?.addEventListener('submit', function(e) {
+          e.preventDefault();
+          Swal.fire({
+            title: 'Sucesso!',
+            text: 'Senha atualizada com sucesso',
+            icon: 'success',
+            confirmButtonColor: '#6a1b9a'
+          });
+        });
+      } else if (path === 'dashboard') {
+        location.reload();
+      }
+    });
+  });
+});
+
+</script>
+</body></html>
